@@ -1,62 +1,91 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Numerics;
+using System.Text;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PaizaTest
 {
     class Program
-    {
-        private static readonly Scanner _sc = new Scanner();
-        
+    {                
         static void Solve()
         {
-            // do something ...    
+            var ss = new StreamScanner(Console.OpenStandardInput());
+            
+
+            return;
         }
 
         static void Main(string[] args)
         {
             using (var sw = new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = false })
             {
+                Console.SetOut(sw);
                 Solve(); 
                 sw.Flush();
             }
         }
     }
 
-    #region Scan
+    #region StreamScanner
 
-    class Scanner
+    public class StreamScanner
     {
-        private string[] _strArray;
-        private int _index;
-        private readonly char[] _separator;
-        public Scanner(char sepa = ' ')
-        {
-            _strArray = new string[0];
-            _index = 0;
-            _separator = new char[] { sepa };
-        }
+        public StreamScanner(Stream stream) { _str = stream; }
 
+        private const int KB = 1 << 10;
+        private readonly Stream _str;
+        private readonly byte[] _buffer = new byte[KB];
+        private int len, ptr;
+        public bool isEof = false;
+        public bool IsEndOfStream { get { return isEof; } }
+        private byte Read()
+        {
+            if (isEof) throw new EndOfStreamException();
+            if (ptr >= len)
+            {
+                ptr = 0;
+                if ((len = _str.Read(_buffer, 0, KB)) <= 0)
+                {
+                    isEof = true;
+                    return 0;
+                }
+            }
+            return _buffer[ptr++];
+        }
+        public char Char()
+        {
+            byte b;
+            do b = Read();
+            while (b < 33 || 126 < b);
+            return (char)b;
+        }
         public string Next()
         {
-            if (_index < _strArray.Length) 
-                return _strArray[_index++];
-            string st = Console.ReadLine();
-            while (st == "") 
-                st = Console.ReadLine();
-            _strArray = st.Split(_separator, StringSplitOptions.RemoveEmptyEntries);
-            if (_strArray.Length == 0) 
-                return Next();
-            _index = 0;
-            return _strArray[_index++];
+            var sb = new StringBuilder();
+            for (var b = Char(); b >= 33 && b <= 126; b = (char)Read())
+                sb.Append(b);
+            return sb.ToString();
         }
-
-        public int NextInt() => int.Parse(Next());
-        public long NextLong() => long.Parse(Next());
-        public double NextDouble() => double.Parse(Next());
+        public long NextLong()
+        {
+            long ret = 0;
+            var ng = false;
+            byte b;
+            do b = Read();
+            while (b != '-' && (b < '0' || '9' < b));
+            if (b == '-') { ng = true; b = Read(); }
+            for (; true; b = Read())
+            {
+                if (b < '0' || '9' < b)
+                    return ng ? -ret : ret;
+                else ret = ret * 10 + b - '0';
+            }
+        }
+        public int NextInt() => (int)NextLong();
+        public double NextDouble() => double.Parse(Next(), CultureInfo.InvariantCulture);
         public BigInteger NextBigInt() => BigInteger.Parse(Next());
     }
 
